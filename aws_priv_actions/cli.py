@@ -18,10 +18,25 @@ class TaskPolicy(str, Enum):
 def get_sts_client():
     return boto3.client('sts')
 
+def get_policy_choices():
+    return {
+        "1": (TaskPolicy.IAM_AUDIT, "Audit root user credentials"),
+        "2": (TaskPolicy.IAM_CREATE, "Create root user password"),
+        "3": (TaskPolicy.IAM_DELETE, "Delete root user credentials"),
+        "4": (TaskPolicy.S3_UNLOCK, "Unlock S3 bucket policy"),
+        "5": (TaskPolicy.SQS_UNLOCK, "Unlock SQS queue policy")
+    }
+
 @app.command()
 def assume_root(
-    target_principal: str = typer.Argument(..., help="The target principal to assume"),
-    task_policy: TaskPolicy = typer.Argument(..., help="The task policy to use"),
+    target_principal: Optional[str] = typer.Argument(
+        None,
+        help="The target principal to assume (e.g., arn:aws:iam::123456789012:root)"
+    ),
+    task_policy: Optional[TaskPolicy] = typer.Argument(
+        None,
+        help="The task policy to use"
+    ),
     duration_seconds: Optional[int] = typer.Option(3600, help="Duration in seconds for the assumed role"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed information")
 ):
@@ -29,6 +44,32 @@ def assume_root(
     Assume root privileges for a specific task on a member account.
     """
     try:
+        # Interactive prompts if arguments are not provided
+        if not target_principal:
+            target_principal = typer.prompt(
+                "Enter the target principal ARN",
+                default="arn:aws:iam::123456789012:root"
+            )
+
+        if not task_policy:
+            console.print("\n[bold blue]Available Task Policies:[/bold blue]")
+            choices = get_policy_choices()
+            for key, (policy, description) in choices.items():
+                console.print(f"{key}. {policy.value} - {description}")
+            
+            while True:
+                try:
+                    choice = typer.prompt(
+                        "\nSelect a task policy (1-5)",
+                        type=str
+                    )
+                    if choice in choices:
+                        task_policy = choices[choice][0]
+                        break
+                    console.print("[red]Invalid choice. Please select a number between 1 and 5.[/red]")
+                except typer.Abort:
+                    raise typer.Exit(0)
+
         sts_client = get_sts_client()
         
         if verbose:
@@ -39,7 +80,7 @@ def assume_root(
 
         response = sts_client.assume_root(
             TargetPrincipal=target_principal,
-            TaskPolicyArn=task_policy.value,
+            TaskPolicyArn={"arn": task_policy.value},  # Wrap in dict as required by API
             DurationSeconds=duration_seconds
         )
 
