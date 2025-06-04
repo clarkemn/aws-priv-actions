@@ -28,7 +28,7 @@ def test_assume_root_success(mock_get_sts_client):
     result = runner.invoke(app, [
         "assume-root",
         "arn:aws:iam::123456789012:root",
-        TaskPolicy.IAM_AUDIT.value
+        "IAMAuditRootUserCredentials"
     ])
 
     assert result.exit_code == 0
@@ -38,7 +38,7 @@ def test_assume_root_success(mock_get_sts_client):
     result = runner.invoke(app, [
         "assume-root",
         "arn:aws:iam::123456789012:root",
-        TaskPolicy.IAM_AUDIT.value,
+        "IAMAuditRootUserCredentials",
         "--verbose"
     ])
 
@@ -56,7 +56,7 @@ def test_assume_root_error(mock_get_sts_client):
     result = runner.invoke(app, [
         "assume-root",
         "arn:aws:iam::123456789012:root",
-        TaskPolicy.IAM_AUDIT.value
+        "IAMAuditRootUserCredentials"
     ])
 
     assert result.exit_code == 1

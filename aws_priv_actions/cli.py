@@ -34,12 +34,12 @@ def assume_root(
         if verbose:
             console.print(f"[bold blue]Attempting to assume root privileges[/bold blue]")
             console.print(f"Target Principal: {target_principal}")
-            console.print(f"Task Policy: {task_policy}")
+            console.print(f"Task Policy: {task_policy.value}")
             console.print(f"Duration: {duration_seconds} seconds")
 
         response = sts_client.assume_root(
             TargetPrincipal=target_principal,
-            TaskPolicyArn=task_policy,
+            TaskPolicyArn=task_policy.value,
             DurationSeconds=duration_seconds
         )
 
