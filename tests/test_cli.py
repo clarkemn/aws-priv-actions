@@ -24,16 +24,35 @@ def test_assume_root_success(mock_get_sts_client):
     }
     mock_get_sts_client.return_value = mock_client
 
+    # Test without verbose flag
     result = runner.invoke(app, [
         "assume-root",
         "arn:aws:iam::123456789012:root",
-        TaskPolicy.IAM_AUDIT.value,
-        "--verbose"
+        "IAMAuditRootUserCredentials"
     ])
 
     assert result.exit_code == 0
     assert "Successfully assumed root privileges" in result.stdout
-    mock_client.assume_root.assert_called_once()
+
+    # Test with verbose flag
+    result = runner.invoke(app, [
+        "assume-root",
+        "arn:aws:iam::123456789012:root",
+        "IAMAuditRootUserCredentials",
+        "--verbose"
+    ])
+
+    assert result.exit_code == 0
+    assert "Attempting to assume root privileges" in result.stdout
+    assert "Target Principal: arn:aws:iam::123456789012:root" in result.stdout
+    # Check for either format of the task policy output
+    assert any(
+        policy_text in result.stdout
+        for policy_text in [
+            "Task Policy: TaskPolicy.IAM_AUDIT",
+            "Task Policy: IAMAuditRootUser"
+        ]
+    )
 
 @patch("aws_priv_actions.cli.get_sts_client")
 def test_assume_root_error(mock_get_sts_client):
@@ -44,7 +63,7 @@ def test_assume_root_error(mock_get_sts_client):
     result = runner.invoke(app, [
         "assume-root",
         "arn:aws:iam::123456789012:root",
-        TaskPolicy.IAM_AUDIT.value
+        "IAMAuditRootUserCredentials"
     ])
 
     assert result.exit_code == 1
