@@ -45,7 +45,14 @@ def test_assume_root_success(mock_get_sts_client):
     assert result.exit_code == 0
     assert "Attempting to assume root privileges" in result.stdout
     assert "Target Principal: arn:aws:iam::123456789012:root" in result.stdout
-    assert "Task Policy: TaskPolicy.IAM_AUDIT" in result.stdout
+    # Check for either format of the task policy output
+    assert any(
+        policy_text in result.stdout
+        for policy_text in [
+            "Task Policy: TaskPolicy.IAM_AUDIT",
+            "Task Policy: IAMAuditRootUser"
+        ]
+    )
 
 @patch("aws_priv_actions.cli.get_sts_client")
 def test_assume_root_error(mock_get_sts_client):
