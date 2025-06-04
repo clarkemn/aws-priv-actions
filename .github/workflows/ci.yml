@@ -21,12 +21,14 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install UV
       uses: astral-sh/setup-uv@v1
-    - name: Create virtual environment
-      run: uv venv
+    - name: Create and activate virtual environment
+      run: |
+        uv venv
+        source .venv/bin/activate
     - name: Install dependencies
       run: |
         uv pip install pytest
         uv pip install -e .
     - name: Run tests
       run: |
-        pytest 
+        source .venv/bin/activate && pytest 
