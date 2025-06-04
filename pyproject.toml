@@ -19,7 +19,4 @@ dependencies = [
 aws-priv-actions = "aws_priv_actions.cli:app"
 
 [tool.hatch.build.targets.wheel]
-packages = ["aws_priv_actions"]
-
-[tool.uv]
-python = "3.11" 
+packages = ["aws_priv_actions"] 
