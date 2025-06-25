@@ -15,8 +15,20 @@ class TaskPolicy(str, Enum):
     S3_UNLOCK = "S3UnlockBucketPolicy"
     SQS_UNLOCK = "SQSUnlockQueuePolicy"
 
-def get_sts_client():
-    return boto3.client('sts')
+# Mapping from TaskPolicy to full policy ARN (with /root-task/ path)
+TASK_POLICY_ARN_MAP = {
+    TaskPolicy.IAM_AUDIT: "arn:aws:iam::aws:policy/root-task/IAMAuditRootUserCredentials",
+    TaskPolicy.IAM_CREATE: "arn:aws:iam::aws:policy/root-task/IAMCreateRootUserPassword",
+    TaskPolicy.IAM_DELETE: "arn:aws:iam::aws:policy/root-task/IAMDeleteRootUserCredentials",
+    TaskPolicy.S3_UNLOCK: "arn:aws:iam::aws:policy/root-task/S3UnlockBucketPolicy",
+    TaskPolicy.SQS_UNLOCK: "arn:aws:iam::aws:policy/root-task/SQSUnlockQueuePolicy",
+}
+
+def get_sts_client(region_name=None):
+    if not region_name:
+        raise ValueError("A region must be specified for assume-root (global endpoint is not supported).")
+    endpoint_url = f"https://sts.{region_name}.amazonaws.com"
+    return boto3.client('sts', region_name=region_name, endpoint_url=endpoint_url)
 
 def get_policy_choices():
     return {
@@ -37,7 +49,8 @@ def assume_root(
         None,
         help="The task policy to use"
     ),
-    duration_seconds: Optional[int] = typer.Option(3600, help="Duration in seconds for the assumed role"),
+    duration_seconds: Optional[int] = typer.Option(900, help="Duration in seconds for the assumed role (max 900)"),
+    region: Optional[str] = typer.Option(None, help="AWS region to use for STS (must be regional endpoint)"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed information")
 ):
     """
@@ -70,7 +83,13 @@ def assume_root(
                 except typer.Abort:
                     raise typer.Exit(0)
 
-        sts_client = get_sts_client()
+        if not region:
+            region = typer.prompt(
+                "Enter the AWS region to use for STS (must be a regional endpoint)",
+                default="us-east-1"
+            )
+
+        sts_client = get_sts_client(region)
         
         if verbose:
             console.print(f"[bold blue]Attempting to assume root privileges[/bold blue]")
@@ -80,7 +99,7 @@ def assume_root(
 
         response = sts_client.assume_root(
             TargetPrincipal=target_principal,
-            TaskPolicyArn={"arn": task_policy.value},  # Wrap in dict as required by API
+            TaskPolicyArn={"arn": TASK_POLICY_ARN_MAP[task_policy]},  # Pass as dict per AWS docs
             DurationSeconds=duration_seconds
         )
 
