@@ -1,6 +1,10 @@
-# AWS Privileged Actions CLI
+# AWS Privileged Actions CLI (`aws-priv-actions`)
 
 A command-line interface for performing privileged actions on AWS member accounts in an organization, when [Centralized Root Management](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-enable-root-access.html) is enabled.
+
+> ⚠️ **Disclaimer**
+>
+> This software allows you to assume AWS IAM `root` privileges, which can have significant security and operational impacts if misused. Use with caution. The authors and contributors provide this software "as is", without warranty of any kind, express or implied. You are solely responsible for any actions taken using this tool.
 
 ## Why?
 
