@@ -20,7 +20,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install UV
-      uses: astral-sh/setup-uv@v1
+      uses: astral-sh/setup-uv@v6
     - name: Create and activate virtual environment
       run: |
         uv venv
