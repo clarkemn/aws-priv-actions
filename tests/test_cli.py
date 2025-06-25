@@ -28,7 +28,8 @@ def test_assume_root_success(mock_get_sts_client):
     result = runner.invoke(app, [
         "assume-root",
         "arn:aws:iam::123456789012:root",
-        "IAMAuditRootUserCredentials"
+        "IAMAuditRootUserCredentials",
+        "--region", "us-east-1"
     ])
 
     assert result.exit_code == 0
@@ -39,7 +40,8 @@ def test_assume_root_success(mock_get_sts_client):
         "assume-root",
         "arn:aws:iam::123456789012:root",
         "IAMAuditRootUserCredentials",
-        "--verbose"
+        "--verbose",
+        "--region", "us-east-1"
     ])
 
     assert result.exit_code == 0
@@ -58,7 +60,7 @@ def test_assume_root_success(mock_get_sts_client):
     result = runner.invoke(
         app,
         ["assume-root"],
-        input="arn:aws:iam::123456789012:root\n1\n"  # target_principal and policy choice
+        input="arn:aws:iam::123456789012:root\n1\nus-east-1\n"  # target_principal, policy choice, region
     )
 
     assert result.exit_code == 0
@@ -74,7 +76,8 @@ def test_assume_root_error(mock_get_sts_client):
     result = runner.invoke(app, [
         "assume-root",
         "arn:aws:iam::123456789012:root",
-        "IAMAuditRootUserCredentials"
+        "IAMAuditRootUserCredentials",
+        "--region", "us-east-1"
     ])
 
     assert result.exit_code == 1
@@ -84,7 +87,7 @@ def test_assume_root_error(mock_get_sts_client):
     result = runner.invoke(
         app,
         ["assume-root"],
-        input="arn:aws:iam::123456789012:root\n1\n"  # target_principal and policy choice
+        input="arn:aws:iam::123456789012:root\n1\nus-east-1\n"  # target_principal, policy choice, region
     )
 
     assert result.exit_code == 1
@@ -107,7 +110,7 @@ def test_assume_root_invalid_policy_choice(mock_get_sts_client):
     result = runner.invoke(
         app,
         ["assume-root"],
-        input="arn:aws:iam::123456789012:root\ninvalid\n1\n"  # invalid choice then valid choice
+        input="arn:aws:iam::123456789012:root\ninvalid\n1\nus-east-1\n"  # invalid choice, valid choice, region
     )
 
     assert result.exit_code == 0

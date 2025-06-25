@@ -25,13 +25,23 @@ aws-priv-actions list-policies
 ### Assume Root Privileges
 
 ```bash
-aws-priv-actions assume-root <target-principal> <task-policy> [--duration-seconds SECONDS] [--verbose]
+aws-priv-actions assume-root <target-principal> <task-policy> [--duration-seconds SECONDS] [--region REGION] [--verbose]
 ```
 
-Example:
+- The `--region` flag is required for the `assume-root` command, as the AWS global STS endpoint is not supported for this operation. If not provided, you will be prompted interactively (default: `us-east-1`).
+- The CLI always uses the correct regional STS endpoint (e.g., `sts.us-east-1.amazonaws.com`).
+
+Example (with region flag):
 
 ```bash
-aws-priv-actions assume-root arn:aws:iam::123456789012:root IAMAuditRootUserCredentials --verbose
+aws-priv-actions assume-root arn:aws:iam::123456789012:root IAMAuditRootUserCredentials --region us-east-1 --verbose
+```
+
+Example (interactive region prompt):
+
+```bash
+aws-priv-actions assume-root arn:aws:iam::123456789012:root IAMAuditRootUserCredentials
+Enter the AWS region to use for STS (must be a regional endpoint) [us-east-1]:
 ```
 
 ### Available Task Policies
