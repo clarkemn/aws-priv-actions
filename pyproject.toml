@@ -4,8 +4,12 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aws-priv-actions"
-version = "0.1.0"
+version = "1.0.0"
 description = "CLI for privileged actions on AWS member accounts"
+authors = [
+    { name = "Matt Clarke", email = "futurebird1@protonmail.com" }
+]
+url = "https://github.com/clarkemn/aws-priv-actions"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"

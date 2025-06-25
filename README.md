@@ -1,6 +1,12 @@
 # AWS Privileged Actions CLI
 
-A command-line interface for performing privileged actions on AWS member accounts in an organization.
+A command-line interface for performing privileged actions on AWS member accounts in an organization, when [Centralized Root Management](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-enable-root-access.html) is enabled.
+
+## Why?
+
+As of the time of writing, there is no AWS API to fetch the list of available task policies. This is a workaround to allow you to perform privileged actions on AWS member accounts in an organization.
+
+This was built as a simple tool to allow Operators to use the `assume-root` feature of AWS Centralized Root Management in critical situations requring root access, without having to pour over AWS CLI documentation.
 
 ## Installation
 
