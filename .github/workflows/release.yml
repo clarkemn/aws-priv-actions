@@ -18,7 +18,7 @@ jobs:
       run: uv python install 3.11
 
     - name: Build a binary wheel and a source tarball
-      run: uv run build
+      run: uv build
 
     - name: Store the distribution packages
       uses: actions/upload-artifact@v4
