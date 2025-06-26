@@ -31,4 +31,4 @@ jobs:
         uv pip install -e .
     - name: Run tests
       run: |
-        source .venv/bin/activate && pytest 
+        source .venv/bin/activate && uv run pytest 
